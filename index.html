@@ -7,7 +7,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Download imagens</title>
+		<title>Baixar imagens</title>
 
 		<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-responsive.min.css">
@@ -34,6 +34,17 @@
 						<label for="atributo">Atributo</label>
 						<input type="text" class="form-control span12" name="atributo" id="atributo" placeholder="Atributo">
 					</div>
+					<div class="checkbox">
+						<label class="">
+							<input type="checkbox" name="relatorio" id="relatorio"> Exibir relatório geral
+						</label>
+					</div>
+					<div class="checkbox">
+						<label class="">
+							<input type="checkbox" name="gerar-zip" id="gerar-zip"> Gerar arquivo ZIP
+						</label>
+					</div>
+
 					<button type="submit" class="btn btn-default">Baixar</button>
 				</fieldset>
 			</form>
@@ -45,7 +56,7 @@
 		<script type="text/javascript">
 			(function($){
 				$("button").click(function(e){
-					e.preventDefault();// e.stopPropagation();
+					e.preventDefault();
 					$("#url-fotos2").val( JSBase64( $("#url-fotos").val(), "encode" ) );
 					console.log( $("#url-fotos2").val() );
 					
@@ -108,15 +119,6 @@
 					return dec;
 				}
 			}
-
-			/*
-				$.each($("table.table-condensed a.galeria"),function(k, v){ console.log( $(this).attr("href") ); });
-
-				http://emevidencia.com.br/site/evento/x-fight-mma-pesagem-dos-lutadores-aconteceu-ontem-ginasio-de-esportes
-				http://emevidencia.com.br/site/evento/6o-x-fight-mma-primeira-parte-das-fotos0
-				http://emevidencia.com.br/site/evento/celebridades-que-marcaram-presenca-no-6o-x-fight-mma0
-				http://emevidencia.com.br/site/evento/bruno-do-klb-esteve-em-matao-no-6o-x-fight-mma-e-fez-alegria-de-uma-fa-matonense-lascando-selinho
-			*/
 		</script>
 	</body>
 </html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="pt-br"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="pt-br"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="pt-br"> <![endif]-->
+<!--[if IE 9 ]><html class="ie ie9" lang="pt-br"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="pt-br"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Download imagens</title>
+
+		<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-responsive.min.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>Baixar imagens</h1>
+			<form id="infos" action="salva.php" method="post">
+				<fieldset>
+					<div class="form-group">
+						<label for="url-fotos">URL completa da galeria</label>
+						<input type="text" class="form-control span12" name="url-fotos" id="url-fotos" placeholder="URL completa da galeria">
+						<input type="hidden" name="url-fotos2" id="url-fotos2">
+					</div>
+					<div class="form-group">
+						<label for="diretorio">Nome da pasta (SEM ACENTOS)</label>
+						<input type="text" class="form-control span12" name="diretorio" id="diretorio" placeholder="Nome da pasta (SEM ACENTOS)">
+					</div>
+					<div class="form-group">
+						<label for="padrao-container">Padrão do container</label>
+						<input type="text" class="form-control span12" name="padrao-container" id="padrao-container" placeholder="Padrão do container">
+					</div>
+					<div class="form-group">
+						<label for="atributo">Atributo</label>
+						<input type="text" class="form-control span12" name="atributo" id="atributo" placeholder="Atributo">
+					</div>
+					<button type="submit" class="btn btn-default">Baixar</button>
+				</fieldset>
+			</form>
+		</div>
+
+		<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+		<script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+
+		<script type="text/javascript">
+			(function($){
+				$("button").click(function(e){
+					e.preventDefault();// e.stopPropagation();
+					$("#url-fotos2").val( JSBase64( $("#url-fotos").val(), "encode" ) );
+					console.log( $("#url-fotos2").val() );
+					
+					$('form').submit();
+				})
+			}(jQuery));
+
+			function JSBase64(data, action){
+				var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+				var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+				ac = 0,
+				enc = "",
+				dec = "",
+				tmp_arr = [];
+
+				if( !data ){ return data; }
+
+				if( action == "encode" ){
+					do{
+						o1 = data.charCodeAt(i++);
+						o2 = data.charCodeAt(i++);
+						o3 = data.charCodeAt(i++);
+
+						bits = o1 << 16 | o2 << 8 | o3;
+
+						h1 = bits >> 18 & 0x3f;
+						h2 = bits >> 12 & 0x3f;
+						h3 = bits >> 6 & 0x3f;
+						h4 = bits & 0x3f;
+
+						tmp_arr[ac++] = b64.charAt(h1) + b64.charAt(h2) + b64.charAt(h3) + b64.charAt(h4);
+					}while ( i < data.length );
+					enc = tmp_arr.join('');
+					var r = data.length % 3;
+					return (r ? enc.slice(0, r - 3) : enc) + '==='.slice(r || 3);
+				}else if( action == "decode" ){
+					data += '';
+					do{
+						h1 = b64.indexOf(data.charAt(i++));
+						h2 = b64.indexOf(data.charAt(i++));
+						h3 = b64.indexOf(data.charAt(i++));
+						h4 = b64.indexOf(data.charAt(i++));
+
+						bits = h1 << 18 | h2 << 12 | h3 << 6 | h4;
+
+						o1 = bits >> 16 & 0xff;
+						o2 = bits >> 8 & 0xff;
+						o3 = bits & 0xff;
+
+						if(h3 == 64){
+							tmp_arr[ac++] = String.fromCharCode(o1);
+						}else if(h4 == 64){
+							tmp_arr[ac++] = String.fromCharCode(o1, o2);
+						}else{
+							tmp_arr[ac++] = String.fromCharCode(o1, o2, o3);
+						}
+					}while( i < data.length );
+
+					dec = tmp_arr.join('');
+					return dec;
+				}
+			}
+
+			/*
+				$.each($("table.table-condensed a.galeria"),function(k, v){ console.log( $(this).attr("href") ); });
+
+				http://emevidencia.com.br/site/evento/x-fight-mma-pesagem-dos-lutadores-aconteceu-ontem-ginasio-de-esportes
+				http://emevidencia.com.br/site/evento/6o-x-fight-mma-primeira-parte-das-fotos0
+				http://emevidencia.com.br/site/evento/celebridades-que-marcaram-presenca-no-6o-x-fight-mma0
+				http://emevidencia.com.br/site/evento/bruno-do-klb-esteve-em-matao-no-6o-x-fight-mma-e-fez-alegria-de-uma-fa-matonense-lascando-selinho
+			*/
+		</script>
+	</body>
+</html>

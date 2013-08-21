@@ -1,32 +1,46 @@
 <?php
-	header ('Content-type: text/html; charset=UTF-8');
+	header('Content-type: text/html; charset=UTF-8');
 
-	// http://simplehtmldom.sourceforge.net/
+	// DOWNLOAD: http://simplehtmldom.sourceforge.net/
 	include('simple_html_dom.php');
 
-	$html = file_get_html( base64_decode( $_POST['url-fotos2'] ) );
+	$printHTML = '<!DOCTYPE html><html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Relatório</title></head><body>';
+
+	$html = file_get_html( base64_decode( $_POST['url-fotos2'] ) );//print_r($html);
+
 	foreach( $html->find( $_POST['padrao-container'] ) as $u ){
+		// ***** DEFAULT www.marioricci.com.br ***** Padrão do container: ".sboxgallery a" | Atributo: "href"
 		$item[] = $u->$_POST['atributo'];
 
-		// ***** USAR NO CASO DE SER O SITE www.agitoararaquara.com.br *****
+		// ***** USAR NO CASO DO SITE www.agitoararaquara.com.br ***** Padrão do container: ".thumbs img" | Atributo: "src"
 		//$tst_ = $u->$_POST['atributo'];
 		//$tst_ = str_replace("t.jpg", ".jpg", $u->$_POST['atributo']);
 		//$tst_ = str_replace("t/nr_", "nr_", $tst_);
-		//$item[] = $tst_;//$u->$_POST['atributo'];
+		//$item[] = $tst_;
+
+		// ***** USAR NO CASO DO SITE www.saibaja.com.br ***** Padrão do container: "#eventos_slide img" | Atributo: "src"
+		//$tst_ = $u->$_POST['atributo'];
+		//$tst_ = str_replace("/0/", "/2/", $u->$_POST['atributo']);
+		//$item[] = "http://www.saibaja.com.br" . $tst_;
+
+		// ***** USAR NO CASO DO SITE www.mataourgente.com.br ***** Padrão do container: ".items a" | Atributo: "href"
+		//$tst_ = $u->$_POST['atributo'];
+		//$item[] = "http://www.mataourgente.com.br" . $tst_;//$u->$_POST['atributo'];
 	}
 	sort($item);
 	set_time_limit( count($item) * 5 );
 	//echo '<pre>'; print_r($item); echo '</pre>';/*
 
+	// CRIA O DIRETÓRIO DE DESTINO
 	$nomeDiretorio = $_POST['diretorio'];
 	if( !file_exists($nomeDiretorio) ){
 		if( mkdir( $nomeDiretorio ) ){
-			echo "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">Diretório de destino criado <b>" . $nomeDiretorio . "</b> - <span style=\"color:green;font-weight:bold;\">[OK]</span></p>";
+			$printHTML .= "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">Diretório de destino criado <b>" . $nomeDiretorio . "</b> - <span style=\"color:rgb(69, 169, 69);font-weight:bold;\">[OK]</span></p>";
 		}else{
-			echo "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">Diretório de destino não pode ser criado <b>" . $nomeDiretorio . "</b> - <span style=\"color:red;font-weight:bold;\">[ERROR]</span></p>";
+			$printHTML .= "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">Diretório de destino não pode ser criado <b>" . $nomeDiretorio . "</b> - <span style=\"color:red;font-weight:bold;\">[ERROR]</span></p>";
 		}
 	}else{
-		echo "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">O diretório já existe - <span style=\"color:darkorange;font-weight:bold;\">[NOT_CREATED]</span></p>";
+		$printHTML .= "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">O diretório já existe - <span style=\"color:darkorange;font-weight:bold;\">[NOT_CREATED]</span></p>";
 	}
 	
 
@@ -36,6 +50,7 @@
 	$ln = array();
 	$arquivosZIP = array();
 
+	// SALVA AS IMAGENS
 	foreach( $item as $url ){
 		$tmp = split("/", $url);
 		$imagem = end($tmp);
@@ -45,7 +60,7 @@
 			$alturao = @imagesy($im);
 			
 			$alturad = 100;
-			$largurad = ($largurao*$alturad)/$alturao;
+			$largurad =($largurao*$alturad)/$alturao;
 			
 			$nova = @imagecreatetruecolor($largurao,$alturao);
 			@imagecopyresampled($nova,$im,0,0,0,0,$largurao,$alturao,$largurao,$alturao);
@@ -53,7 +68,7 @@
 			$arquivosZIP[] = $nomeDiretorio . "/" . $imagem;
 			if( @imagejpeg( $nova, $nomeDiretorio . "/" . $imagem ) ){
 				$y++;
-				$ly[] = "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">" . $url . " - <span style=\"color:green;font-weight:bold;\">[OK]</span></p>";
+				$ly[] = "<p style=\"font-family:Arial, Tahoma, Verdana;\"><a href=\"" . $url . "\" style=\"color:#666;font-family:Arial, Tahoma, Verdana;\" target=\"_blank\">" . $url . "</a> - <span style=\"color:rgb(69, 169, 69);font-weight:bold;\">[OK]</span></p>";
 			}
 			else{
 				$n++;
@@ -63,7 +78,7 @@
 			@imagedestroy($nova);
 			@imagedestroy($im);
 		}else{
-			echo "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">" . $url . " - <span style=\"color:darkorange;font-weight:bold;\">[UNOPENED]</span></p>";
+			$printHTML .= "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">" . $url . " - <span style=\"color:darkorange;font-weight:bold;\">[UNOPENED]</span></p>";
 		}
 	}
 
@@ -99,31 +114,33 @@
 			$server = $_SERVER['SERVER_NAME']; 
 			$endereco = $_SERVER ['REQUEST_URI'];
 
-			if (copy("./down.zip", $nomeDiretorio . "/down.zip")) {
+			if( copy("./down.zip", $nomeDiretorio . "/down.zip") ){
 				unlink("./down.zip");
 			}
 
-			echo "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\"><a href=\"http://" . $server . str_replace("salva.php", "", $endereco) . $nomeDiretorio . "/down.zip\" style=\"color:green;font-weight:bold;\">BAIXAR</a></p>";
+			$printHTML .= "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\"><a href=\"http://" . $server . str_replace("salva.php", "", $endereco) . $nomeDiretorio . "/down.zip\" style=\"color:rgb(69, 169, 69);font-weight:bold;\">BAIXAR</a></p>";
 		}else{
-			echo "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">Arquivo ZIP não pode ser criado - <span style=\"color:red;font-weight:bold;\">[ERROR]</span></p>";
+			$printHTML .= "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">Arquivo ZIP não pode ser criado - <span style=\"color:red;font-weight:bold;\">[ERROR]</span></p>";
 		}
 	}
 	
 	// EXIBIR O RELATÓRIO GERAL
 	if( isset( $_POST['relatorio'] ) ){
 		if( $n > 0 ){
-			echo "<p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">Ocorreram alguns erros:</p>";
+			$printHTML .= "<hr><p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">" . count( $ln ) . " erros:</p>";
 			foreach( $ln as $iln ){
-				echo $iln;
+				$printHTML .= $iln;
 			}
 		}
 
 		if( $y > 0 ){
-			echo "<hr><p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">Essas imagens foram salvas:</p>";
+			$printHTML .= "<hr><p style=\"color:#666;font-family:Arial, Tahoma, Verdana;\">" . count( $ly ) . " imagens salvas:</p>";
 			foreach( $ly as $ily ){
-				echo $ily;
+				$printHTML .= $ily;
 			}
 		}
 	}
 	/**/
+
+	echo $printHTML . "</body></html>";
 ?>
